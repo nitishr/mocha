@@ -30,6 +30,10 @@ module Mocha
 
       attr_reader :stubba_object
 
+      def respond_to?(method)
+        stubba_object.allocate.respond_to?(method)
+      end
+
       def method_exists?(method, include_public_methods = true)
         stubba_object.allocate.method_exists?(method, include_public_methods)
       end

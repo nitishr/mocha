@@ -128,7 +128,7 @@ module Mocha
     def on_stubbing(object, method)
       method = PRE_RUBY_V19 ? method.to_s : method.to_sym
       unless Mocha::Configuration.allow?(:stubbing_non_existent_method)
-        unless object.method_exists?(method, true)
+        unless method_exists?(object, method)
           on_stubbing_non_existent_method(object, method)
         end
       end
@@ -193,6 +193,10 @@ module Mocha
     end
 
     private
+
+    def method_exists?(object, method)
+      object.method_exists?(method, true) || object.respond_to?(method)
+    end
 
     def expectations
       mocks.map { |mock| mock.__expectations__.to_a }.flatten
