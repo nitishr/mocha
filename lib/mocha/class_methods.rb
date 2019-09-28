@@ -34,8 +34,8 @@ module Mocha
         stubba_object.allocate.respond_to?(method)
       end
 
-      def method_exists?(method, include_public_methods = true)
-        stubba_object.allocate.method_exists?(method, include_public_methods)
+      def singleton_class
+        stubba_object
       end
     end
 
@@ -53,6 +53,12 @@ module Mocha
         raise StubbingError.new("can't stub method on frozen object: #{mocha_inspect}.any_instance", caller)
       end
       @any_instance ||= AnyInstance.new(self)
+    end
+
+    # @private
+    def method_exists?(method, include_public_methods = true)
+      (include_public_methods && method_defined?(method)) ||
+        (protected_method_defined?(method) || private_method_defined?(method))
     end
   end
 end

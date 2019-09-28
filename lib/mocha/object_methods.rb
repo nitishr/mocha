@@ -160,12 +160,5 @@ module Mocha
         mockery.stubba.unstub(method)
       end
     end
-
-    # @private
-    def method_exists?(method, include_public_methods = true)
-      klass = singleton_class
-      (include_public_methods && klass.method_defined?(method)) ||
-        (klass.protected_method_defined?(method) || klass.private_method_defined?(method))
-    end
   end
 end
