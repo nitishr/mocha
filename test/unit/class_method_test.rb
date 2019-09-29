@@ -13,7 +13,7 @@ class ClassMethodTest < Mocha::TestCase
     Class.new do
       extend ClassMethods
       singleton_class.extend(ClassMethods)
-      singleton_class.define_method(method) { result } if method
+      singleton_class.send(:define_method, method) { result } if method
     end
   end
 
