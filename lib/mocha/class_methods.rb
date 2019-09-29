@@ -56,9 +56,10 @@ module Mocha
     end
 
     # @private
-    def method_exists?(method, include_public_methods = true)
-      (include_public_methods && method_defined?(method)) ||
-        (protected_method_defined?(method) || private_method_defined?(method))
+    def method_visibility(method, include_public_methods = true)
+      (include_public_methods && public_method_defined?(method) && :public) ||
+        ((protected_method_defined?(method) && :protected) || (private_method_defined?(method) && :private))
     end
+    alias_method :method_exists?, :method_visibility
   end
 end
