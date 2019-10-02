@@ -151,7 +151,7 @@ class StubbingNonPublicClassMethodTest < Mocha::TestCase
     klass = Class.new do
       class << self
         def respond_to?(method, _include_private_methods = false)
-          (method == :method_to_which_class_responds)
+          (method.to_sym == :method_to_which_class_responds)
         end
       end
     end

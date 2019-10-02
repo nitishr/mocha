@@ -130,7 +130,7 @@ class StubbingNonPublicInstanceMethodTest < Mocha::TestCase
     Mocha::Configuration.prevent(:stubbing_non_public_method)
     instance = Class.new do
       def respond_to?(method, _include_private_methods = false)
-        (method == :method_to_which_instance_responds)
+        (method.to_sym == :method_to_which_instance_responds)
       end
     end.new
     test_result = run_as_test do
