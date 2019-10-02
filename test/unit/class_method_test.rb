@@ -268,7 +268,7 @@ class ClassMethodTest < Mocha::TestCase
       def equal?(_other)
         false
       end
-    end
+    end.new
     class_method1 = ClassMethod.new(stubbee, :method)
     class_method2 = ClassMethod.new(stubbee, :method)
     assert class_method1.matches?(class_method2)
