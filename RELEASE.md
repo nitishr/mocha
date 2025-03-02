@@ -1,5 +1,9 @@
 # Release Notes
 
+## foo
+
+- Automatically create GitHub releases
+
 ## 3.0.0-rc.1
 
 ### External changes
