@@ -1,0 +1,81 @@
+name: CI
+
+on:
+  push:
+  schedule:
+    - cron: "0 3 * * 0"
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    env:
+      BUNDLE_GEMFILE: gemfiles/Gemfile.rubocop
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ruby
+          rubygems: latest
+          bundler: latest
+          bundler-cache: true
+      - run: bundle exec rake lint
+      - if: ${{ failure() }}
+        uses: mxschmitt/action-tmate@v3
+
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        ruby:
+          [
+            "2.2",
+            "2.3",
+            "2.4",
+            "2.5",
+            "2.6",
+            "2.7",
+            "3.0",
+            "3.1",
+            "3.2",
+            "3.3",
+            "3.4",
+            jruby-latest,
+          ]
+        include:
+          - ruby: latest
+          - ruby: latest
+            gemfile: gemfiles/Gemfile.minitest.latest
+            test_env: MOCHA_RUN_INTEGRATION_TESTS=minitest
+          - ruby: head
+            gemfile: gemfiles/Gemfile.test-unit.latest
+            test_env: MOCHA_RUN_INTEGRATION_TESTS=test-unit
+
+    env:
+      BUNDLE_GEMFILE: ${{ matrix.gemfile || 'Gemfile' }}
+      RUBYOPT: ${{ matrix.ruby != '2.2' && '--enable-frozen-string-literal' || '' }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ matrix.ruby }}
+          rubygems: latest
+          bundler: latest
+          bundler-cache: true
+
+      - name: Run tests
+        shell: bash -e {0}
+        run: ${{ matrix.test_env }} bundle exec rake test 2>&1 | tee >(grep -q "warning:" && exit 1)
+
+      - name: Performance tests
+        if: matrix.ruby == 'head' && !matrix.gemfile
+        run: bundle exec rake test:performance 2>&1 | tee >(grep -q "warning:" && exit 1)
+
+      - name: Generate docs
+        if: matrix.ruby == 'head' && !matrix.gemfile
+        env:
+          RUBYOPT: --disable-frozen-string-literal
+          MOCHA_GENERATE_DOCS: 1
+        run: bundle exec rake docs docs:coverage
